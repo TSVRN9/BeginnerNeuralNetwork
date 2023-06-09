@@ -157,9 +157,75 @@ public class DrawingApp extends JFrame {
     }
 
     private void updateImageMatrix() {
+        // center all drawings (to give a little helping hand to the neural network)
+        int offsetX = 0;
+        int offsetY = 0;
+        int imageWidth = 0;
+        int imageHeight = 0;
+        int centerX = canvasWidth / 2;
+        int centerY = canvasHeight / 2;
+
+        loop:
         for (int x = 0; x < canvasWidth; x++) {
             for (int y = 0; y < canvasHeight; y++) {
-                imageMatrix.put(y + canvasHeight*x, drawingGrid[x][y] ? 1.0 : 0.0);
+                if (drawingGrid[x][y]) {
+                    offsetX = x;
+                    break loop;
+                }
+            }
+        }
+        
+        loop:
+        for (int y = 0; y < canvasHeight; y++) {
+            for (int x = 0; x < canvasWidth; x++) {
+                if (drawingGrid[x][y]) {
+                    offsetY = y;
+                    break loop;
+                }
+            }
+        }
+
+        for (int x = offsetX; x < canvasWidth; x++) {
+            boolean isBlank = true;
+            for (int y = offsetY; y < canvasHeight; y++) {
+                if (drawingGrid[x][y]) {
+                    isBlank = false;
+                    break;
+                }
+            }
+            if (isBlank) {
+                imageWidth = x - offsetX;
+            }
+        }
+
+        for (int y = offsetY; x < canvasHeight; y++) {
+            boolean isBlank = true;
+            for (int x = offsetY; x < canvasWidth; x++) {
+                if (drawingGrid[x][y]) {
+                    isBlank = false;
+                    break;
+                }
+            }
+            if (isBlank) {
+                imageHeight = y - offsetY;
+            }
+        }
+
+        // init centered image
+        double[][] centeredImageGrid = new double[canvasHeight][canvasWidth];
+        for (int x = offsetX; x < offsetX + imageWidth; x++) {
+            for (int y = offsetY; y < offsetY + imageHeight; y++) {
+                if (drawingGrid[x][y]) {
+                    int centeredX = centerX - offsetX / 2;
+                    int centeredY = centerY - offsetY / 2;
+                    centeredImageGrid[centeredX][centeredY] = 1.0;
+                }
+            }
+        }
+
+        for (int x = 0; x < canvasWidth; x++) {
+            for (int y = 0; y < canvasHeight; y++) {
+                imageMatrix.put(y + canvasHeight*x, centeredImageGrid[x][y]);
             }
         }
     }
