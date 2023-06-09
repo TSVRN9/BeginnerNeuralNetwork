@@ -85,7 +85,7 @@ public class DrawingApp extends JFrame {
 
                     for (int a = -1; a <= 1; a++) {
                         for (int b = -1; b <= 1; b++) {
-                            if (isValidPixel(x, y)) {
+                            if (isValidPixel(x + a, y + b)) {
                                 draw(x + a, y + b, SwingUtilities.isLeftMouseButton(e));
                             }
                         }
@@ -157,75 +157,49 @@ public class DrawingApp extends JFrame {
     }
 
     private void updateImageMatrix() {
-        // center all drawings (to give a little helping hand to the neural network)
-        int offsetX = 0;
-        int offsetY = 0;
-        int imageWidth = 0;
-        int imageHeight = 0;
+        // Calculate the center coordinates
         int centerX = canvasWidth / 2;
         int centerY = canvasHeight / 2;
 
-        loop:
-        for (int x = 0; x < canvasWidth; x++) {
-            for (int y = 0; y < canvasHeight; y++) {
-                if (drawingGrid[x][y]) {
-                    offsetX = x;
-                    break loop;
+        // Find the bounding box of the non-blank pixels in the image
+        int minX = canvasWidth;
+        int minY = canvasHeight;
+        int maxX = 0;
+        int maxY = 0;
+
+        for (int y = 0; y < canvasHeight; y++) {
+            for (int x = 0; x < canvasHeight; x++) {
+                if (drawingGrid[y][x]) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
                 }
             }
         }
-        
-        loop:
+
+        // Calculate the shift amounts to center the image
+        int shiftX = centerX - (maxX + minX) / 2;
+        int shiftY = centerY - (maxY + minY) / 2;
+
+        // Create a new array to hold the centered image
+        double[][] centeredImage = new double[canvasHeight][canvasHeight];
+
+        // Copy the pixels from the original image to the centered image with the calculated shift
         for (int y = 0; y < canvasHeight; y++) {
             for (int x = 0; x < canvasWidth; x++) {
-                if (drawingGrid[x][y]) {
-                    offsetY = y;
-                    break loop;
+                int shiftedX = x + shiftX;
+                int shiftedY = y + shiftY;
+
+                // Check if the shifted coordinates are within the bounds of the centered image
+                if (shiftedX >= 0 && shiftedX < canvasWidth && shiftedY >= 0 && shiftedY < canvasHeight) {
+                    centeredImage[shiftedY][shiftedX] = drawingGrid[y][x] ? 1.0 : 0.0;
                 }
             }
         }
-
-        for (int x = offsetX; x < canvasWidth; x++) {
-            boolean isBlank = true;
-            for (int y = offsetY; y < canvasHeight; y++) {
-                if (drawingGrid[x][y]) {
-                    isBlank = false;
-                    break;
-                }
-            }
-            if (isBlank) {
-                imageWidth = x - offsetX;
-            }
-        }
-
-        for (int y = offsetY; x < canvasHeight; y++) {
-            boolean isBlank = true;
-            for (int x = offsetY; x < canvasWidth; x++) {
-                if (drawingGrid[x][y]) {
-                    isBlank = false;
-                    break;
-                }
-            }
-            if (isBlank) {
-                imageHeight = y - offsetY;
-            }
-        }
-
-        // init centered image
-        double[][] centeredImageGrid = new double[canvasHeight][canvasWidth];
-        for (int x = offsetX; x < offsetX + imageWidth; x++) {
-            for (int y = offsetY; y < offsetY + imageHeight; y++) {
-                if (drawingGrid[x][y]) {
-                    int centeredX = centerX - offsetX / 2;
-                    int centeredY = centerY - offsetY / 2;
-                    centeredImageGrid[centeredX][centeredY] = 1.0;
-                }
-            }
-        }
-
         for (int x = 0; x < canvasWidth; x++) {
             for (int y = 0; y < canvasHeight; y++) {
-                imageMatrix.put(y + canvasHeight*x, centeredImageGrid[x][y]);
+                imageMatrix.put(y + canvasHeight*x, centeredImage[x][y]);
             }
         }
     }
