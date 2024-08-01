@@ -1,6 +1,6 @@
 # BeginnerNeuralNetwork
 ## Motivation
-This was my final project for AP CSA. I challenged myself to make this in Java instead of Python, which is traditionally used, so I would have to learn about CNNs. 
+This was my final project for AP CSA. I challenged myself to make this in Java instead of Python, which is traditionally used, so I would have to learn about perceptrons from the ground up. 
 I more recently tidied this project up and refactored the various cost and activation functions to follow a functional paradigm instead of traditional inheritance.
 But, the core of the project remains the same as when I wrote it in spring of 2023.
 
