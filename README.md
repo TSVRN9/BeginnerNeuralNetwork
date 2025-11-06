@@ -8,7 +8,7 @@ I ended up using JBlas as my linear algebra library, and gson to quickly seriali
 I also used ChatGPT to write much of the code within `DrawingApp`. I just don't really like Swing...
 ## Usage
 Within the main package, `me.tsvrn9.beginnerneuralnetwork`, I have included two classes with main methods.
-`Training` will train the CNN on the EMNIST dataset by default, included as resources. Values can be changed within `Config`. 
+`Training` will train the MLP on the EMNIST dataset by default, included as resources. Values can be changed within `Config`. 
 `DrawingApp` will allow for drawing numbers to test out the neural network.
 
 You will have to change values within the config and training.
@@ -62,7 +62,7 @@ I followed along with an online textbook, and I tried to maintain their conventi
 The first layer doesn't really "have" weights and definitely doesn't have biases associated with it.
 So, I left it as null.
 
-I defined a `NetworkVector` to basically represent all the weights and biases of a CNN.
+I defined a `NetworkVector` to basically represent all the weights and biases of a MLP.
 In doing so, I'm able to just use gson to quickly serialize and deserialize this. 
 It also allows for me to create a new object to represent how the weights and biases should change.
 ### Training a `NeuralNetwork`
